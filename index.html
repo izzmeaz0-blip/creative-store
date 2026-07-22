@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نوفا | Nova Store</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { font-family:'Segoe UI',Tahoma,sans-serif; background:#0b0d17; color:#eaeaf5; overflow-x:hidden; }
+
+  @keyframes fadeUp { from{opacity:0; transform:translateY(30px);} to{opacity:1; transform:translateY(0);} }
+  @keyframes glow { 0%,100%{box-shadow:0 0 20px rgba(168,85,247,0.3);} 50%{box-shadow:0 0 40px rgba(0,229,255,0.4);} }
+  @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+  @keyframes shimmer { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
+
+  nav {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 30px; background:rgba(18,20,42,0.85); backdrop-filter:blur(14px);
+    position:sticky; top:0; z-index:200; border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+  .logo { font-weight:900; font-size:1.5em; background:linear-gradient(90deg,#00e5ff,#a855f7,#00e5ff);
+    background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation:shimmer 4s linear infinite; }
+  .nav-right { display:flex; gap:14px; align-items:center; }
+  .lang-btn { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2);
+    color:#fff; padding:8px 16px; border-radius:20px; cursor:pointer; font-weight:bold; transition:0.3s; }
+  .lang-btn:hover { background:rgba(255,255,255,0.18); transform:scale(1.05); }
+  .cart-btn { position:relative; background:linear-gradient(90deg,#00e5ff,#a855f7);
+    color:#0b0d17; border:none; padding:10px 20px; border-radius:20px; cursor:pointer; font-weight:bold;
+    transition:0.3s; }
+  .cart-btn:hover { transform:scale(1.06); animation:glow 1.5s infinite; }
+  .cart-count { position:absolute; top:-8px; left:-8px; background:#ff3d71; color:#fff;
+    width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:0.75em; }
+
+  header {
+    text-align:center; padding:100px 20px 80px; position:relative;
+    background:radial-gradient(circle at 20% 20%, rgba(168,85,247,0.15), transparent 45%),
+               radial-gradient(circle at 80% 80%, rgba(0,229,255,0.15), transparent 45%);
+  }
+  .hero-badge { display:inline-block; padding:6px 18px; border-radius:20px;
+    background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.4);
+    color:#c9a8ff; font-size:0.85em; margin-bottom:20px; animation:float 3s ease-in-out infinite; }
+  header h1 { font-size:clamp(2.2em,6vw,3.4em); margin-bottom:16px; animation:fadeUp 0.8s ease; }
+  header p { color:#9a9ab8; max-width:520px; margin:0 auto; animation:fadeUp 1s ease; }
+
+  .filters { display:flex; justify-content:center; gap:12px; flex-wrap:wrap; padding:0 20px 40px; }
+  .filter-btn { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);
+    color:#c8c8e0; padding:9px 20px; border-radius:20px; cursor:pointer; transition:0.3s; font-size:0.9em; }
+  .filter-btn:hover, .filter-btn.active { background:linear-gradient(90deg,#00e5ff,#a855f7); color:#0b0d17;
+    border-color:transparent; font-weight:bold; }
+
+  .products { max-width:1150px; margin:0 auto; padding:20px; display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:26px; }
+  .product { background:#161832; border:1px solid rgba(255,255,255,0.06); border-radius:18px;
+    overflow:hidden; transition:0.4s; opacity:0; animation:fadeUp 0.6s ease forwards; }
+  .product:hover { transform:translateY(-10px) scale(1.02); border-color:#a855f7;
+    box-shadow:0 20px 45px rgba(168,85,247,0.3); }
+  .product .img-wrap { width:100%; height:190px; overflow:hidden; position:relative; }
+  .product img { width:100%; height:100%; object-fit:cover; transition:0.5s; }
+  .product:hover img { transform:scale(1.12); }
+  .product .badge-new { position:absolute; top:10px; right:10px; background:#ff3d71; color:#fff;
+    font-size:0.7em; padding:4px 10px; border-radius:12px; font-weight:bold; }
+  .product .info { padding:18px; text-align:center; }
+  .product h3 { margin-bottom:6px; font-size:1.05em; }
+  .product .desc { color:#9a9ab8; font-size:0.85em; margin-bottom:12px; min-height:36px; }
+  .product .price { color:#00e5ff; font-weight:bold; font-size:1.25em; margin-bottom:14px; }
+  .product button { width:100%; background:linear-gradient(90deg,#00e5ff,#a855f7); border:none;
+    padding:11px; border-radius:10px; color:#0b0d17; font-weight:bold; cursor:pointer; transition:0.3s; }
+  .product button:hover { filter:brightness(1.15); transform:scale(1.03); }
+
+  .cart-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.65); display:none; z-index:300;
+    backdrop-filter:blur(3px); }
+  .cart-overlay.open { display:block; }
+  .cart-drawer { position:fixed; top:0; left:0; width:min(360px,88vw); height:100%; background:#12142a;
+    z-index:301; transform:translateX(-100%); transition:0.35s cubic-bezier(.4,0,.2,1); padding:26px;
+    overflow-y:auto; box-shadow:10px 0 40px rgba(0,0,0,0.5); }
+  .cart-drawer.open { transform:translateX(0); }
+  .cart-drawer h2 { margin-bottom:22px; }
+  .cart-item { display:flex; gap:12px; align-items:center; padding:12px 0;
+    border-bottom:1px solid rgba(255,255,255,0.08); }
+  .cart-item img { width:50px; height:50px; border-radius:10px; object-fit:cover; }
+  .cart-item .details { flex:1; }
+  .cart-item .remove { color:#ff3d71; cursor:pointer; font-size:1.2em; }
+  .cart-total { margin-top:22px; font-size:1.25em; font-weight:bold; color:#00e5ff; }
+  .close-cart { background:none; border:none; color:#fff; font-size:1.6em; cursor:pointer;
+    float:left; margin-bottom:10px; }
+
+  footer { text-align:center; padding:45px 20px; color:#6a6a8a; border-top:1px solid rgba(255,255,255,0.06);
+    margin-top:40px; }
+  footer strong { color:#a855f7; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">NOVA</div>
+  <div class="nav-right">
+    <button class="lang-btn" onclick="toggleLang()">EN</button>
+    <button class="cart-btn" onclick="toggleCart()">🛒 <span data-ar="السلة" data-en="Cart">السلة</span> <span class="cart-count" id="cartCount">0</span></button>
+  </div>
+</nav>
+
+<header>
+  <span class="hero-badge" data-ar="✨ نموذج تصميم تجريبي" data-en="✨ Design Concept">✨ نموذج تصميم تجريبي</span>
+  <h1 data-ar="تسوّق بأسلوب المستقبل" data-en="Shop The Future">تسوّق بأسلوب المستقبل</h1>
+  <p data-ar="منتجات تقنية مختارة بعناية، بتجربة تسوق سلسة وسريعة." data-en="Curated tech products with a smooth, fast shopping experience.">منتجات تقنية مختارة بعناية، بتجربة تسوق سلسة وسريعة.</p>
+</header>
+
+<div class="filters" id="filters"></div>
+<section class="products" id="products"></section>
+
+<div class="cart-overlay" id="overlay" onclick="toggleCart()"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <button class="close-cart" onclick="toggleCart()">✕</button>
+  <h2 data-ar="سلة التسوق" data-en="Your Cart">سلة التسوق</h2>
+  <div id="cartItems"></div>
+  <div class="cart-total" id="cartTotal"></div>
+</div>
+
+<footer>
+  <p data-ar="نموذج تصميم — تم بناؤه بواسطة <strong>عزالدين معاذ عمر مالك</strong>" data-en="Design concept — built by <strong>Ezzeldin Moaz Omar Malek</strong>">نموذج تصميم — تم بناؤه بواسطة <strong>عزالدين معاذ عمر مالك</strong></p>
+</footer>
+
+<script>
+const products = [
+  {id:1, ar:"سماعة لاسلكية", en:"Wireless Earbuds", dAr:"صوت نقي وعزل ضوضاء.", dEn:"Crystal sound, noise cancelling.", price:249, cat:"audio", isNew:true,
+   img:"https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=500"},
+  {id:2, ar:"ساعة ذكية", en:"Smart Watch", dAr:"تتبع صحي على مدار الساعة.", dEn:"24/7 health tracking.", price:399, cat:"wearable", isNew:false,
+   img:"https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500"},
+  {id:3, ar:"لوحة مفاتيح ميكانيكية", en:"Mechanical Keyboard", dAr:"إحساس كتابة مميز.", dEn:"Premium typing feel.", price:189, cat:"accessories", isNew:true,
+   img:"https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=500"},
+  {id:4, ar:"كاميرا ويب 4K", en:"4K Webcam", dAr:"وضوح فائق للاجتماعات.", dEn:"Ultra HD for meetings.", price:159, cat:"accessories", isNew:false,
+   img:"https://images.unsplash.com/photo-1587826080692-f439065d5f00?w=500"},
+  {id:5, ar:"شاحن سريع", en:"Fast Charger", dAr:"شحن كامل خلال دقائق.", dEn:"Full charge in minutes.", price:79, cat:"accessories", isNew:false,
+   img:"https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=500"},
+  {id:6, ar:"مكبر صوت محمول", en:"Portable Speaker", dAr:"صوت قوي أينما ذهبت.", dEn:"Powerful sound anywhere.", price:129, cat:"audio", isNew:false,
+   img:"https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500"},
+  {id:7, ar:"سماعة رأس للألعاب", en:"Gaming Headset", dAr:"صوت محيطي غامر.", dEn:"Immersive surround sound.", price:219, cat:"audio", isNew:true,
+   img:"https://images.unsplash.com/photo-1599669454699-248893623440?w=500"},
+  {id:8, ar:"سوار لياقة ذكي", en:"Fitness Band", dAr:"يتتبع نشاطك اليومي.", dEn:"Tracks your daily activity.", price:99, cat:"wearable", isNew:false,
+   img:"https://images.unsplash.com/photo-1575311373937-c2ded15c2a37?w=500"}
+];
+const categories = [
+  {id:'all', ar:'الكل', en:'All'},
+  {id:'audio', ar:'صوتيات', en:'Audio'},
+  {id:'wearable', ar:'يُلبس', en:'Wearable'},
+  {id:'accessories', ar:'إكسسوارات', en:'Accessories'}
+];
+let cart = JSON.parse(localStorage.getItem('novaCart') || '[]');
+let currentLang = 'ar';
+let currentFilter = 'all';
+
+function renderFilters(){
+  const f = document.getElementById('filters');
+  f.innerHTML = categories.map(c => `
+    <button class="filter-btn ${currentFilter===c.id?'active':''}" onclick="setFilter('${c.id}')">
+      ${currentLang==='ar'?c.ar:c.en}
+    </button>
+  `).join('');
+}
+function setFilter(id){ currentFilter = id; renderFilters(); renderProducts(); }
+
+function renderProducts(){
+  const list = currentFilter==='all' ? products : products.filter(p=>p.cat===currentFilter);
+  const c = document.getElementById('products');
+  c.innerHTML = list.map((p,i) => `
+    <div class="product" style="animation-delay:${i*0.08}s">
+      <div class="img-wrap">
+        <img src="${p.img}" alt="${p.ar}">
+        ${p.isNew ? `<span class="badge-new">${currentLang==='ar'?'جديد':'NEW'}</span>` : ''}
+      </div>
+      <div class="info">
+        <h3>${currentLang==='ar'?p.ar:p.en}</h3>
+        <div class="desc">${currentLang==='ar'?p.dAr:p.dEn}</div>
+        <div class="price">${p.price} ر.ق</div>
+        <button onclick="addToCart(${p.id})">${currentLang==='ar'?'أضف للسلة':'Add to Cart'}</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addToCart(id){
+  const p = products.find(x=>x.id===id);
+  cart.push(p);
+  localStorage.setItem('novaCart', JSON.stringify(cart));
+  updateCart();
+  toggleCart(true);
+}
+function removeFromCart(index){
+  cart.splice(index,1);
+  localStorage.setItem('novaCart', JSON.stringify(cart));
+  updateCart();
+}
+function updateCart(){
+  document.getElementById('cartCount').textContent = cart.length;
+  const itemsEl = document.getElementById('cartItems');
+  if(cart.length===0){
+    itemsEl.innerHTML = `<p style="color:#6a6a8a;">${currentLang==='ar'?'السلة فارغة':'Your cart is empty'}</p>`;
+  } else {
+    itemsEl.innerHTML = cart.map((p,i)=>`
+      <div class="cart-item">
+        <img src="${p.img}" alt="">
+        <div class="details">${currentLang==='ar'?p.ar:p.en}<br><small style="color:#9a9ab8">${p.price} ر.ق</small></div>
+        <span class="remove" onclick="removeFromCart(${i})">✕</span>
+      </div>
+    `).join('');
+  }
+  const total = cart.reduce((s,p)=>s+p.price,0);
+  document.getElementById('cartTotal').textContent = (currentLang==='ar'?'الإجمالي: ':'Total: ') + total + ' ر.ق';
+}
+
+function toggleCart(forceOpen){
+  const d = document.getElementById('cartDrawer');
+  const o = document.getElementById('overlay');
+  if(forceOpen){ d.classList.add('open'); o.classList.add('open'); return; }
+  d.classList.toggle('open');
+  o.classList.toggle('open');
+}
+
+function toggleLang(){
+  currentLang = currentLang==='ar' ? 'en' : 'ar';
+  const html=document.getElementById('htmlRoot');
+  html.setAttribute('lang',currentLang);
+  html.setAttribute('dir', currentLang==='ar'?'rtl':'ltr');
+  document.querySelector('.lang-btn').textContent = currentLang==='ar'?'EN':'AR';
+  document.querySelectorAll('[data-ar]').forEach(el=>{
+    el.innerHTML = el.getAttribute('data-'+currentLang);
+  });
+  renderFilters();
+  renderProducts();
+  updateCart();
+}
+
+renderFilters();
+renderProducts();
+updateCart();
+</script>
+</body>
+</html>
